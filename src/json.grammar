@@ -1,0 +1,65 @@
+//Alumno: Moises Merza
+//C.I: 25547115
+
+// Regla inicial: Un archivo JSON es un Elemento.
+@top JSON { Element }
+
+// Un Elemento puede ser un valor verdadero, falso, nulo, número, cadena, objeto o arreglo.
+Element { True | False | Null | Number | String | Object | Array }
+
+// Una cadena JSON.
+String { string }
+
+// Un objeto JSON: comienza con '{', contiene propiedades opcionales separadas por comas, y termina con '}'.
+Object { "{" list<Property>? "}" }
+
+// Un arreglo JSON: comienza con '[', contiene elementos opcionales separados por comas, y termina con ']'.
+Array  { "[" list<Element>? "]" }
+
+// Una propiedad de un objeto JSON: consiste en un nombre de propiedad seguido de ':' y un valor.
+Property { PropertyName ":" Element }
+
+// El nombre de una propiedad es una cadena JSON.
+PropertyName { string }
+
+// Sección de tokens: define los componentes básicos de la gramática.
+@tokens {
+  // Valor booleano verdadero.
+  True  { "true" }
+
+  // Valor booleano falso.
+  False { "false" }
+
+  // Valor nulo.
+  Null  { "null" }
+
+  // Un número JSON: puede ser negativo, con parte entera, fraccionaria y exponencial.
+  Number { '-'? int frac? exp?  }
+
+  // Parte entera de un número: puede ser '0' o un dígito del 1 al 9 seguido de cero o más dígitos.
+  int  { '0' | $[1-9] @digit* }
+
+  // Parte fraccionaria de un número: comienza con '.' seguido de uno o más dígitos.
+  frac { '.' @digit+ }
+
+  // Parte exponencial de un número: comienza con 'e' o 'E', seguido opcionalmente de un signo y uno o más dígitos.
+  exp  { $[eE] $[+\-]? @digit+ }
+
+  // Una cadena JSON: comienza y termina con comillas dobles, y contiene caracteres válidos.
+  string { '"' characters* '"' }
+
+  // Caracteres válidos en una cadena JSON: cualquier carácter Unicode excepto '"' y '\', o secuencias de escape.
+  characters { $[\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}] | "\\" }
+
+  // Caracteres de espacio en blanco: espacio, nueva línea, retorno de carro y tabulación.
+  whitespace { $[ \n\r\t] }
+}
+
+// Ignorar espacios en blanco durante el análisis sintáctico.
+@skip { whitespace }
+
+// Definición de una lista genérica: elementos separados por comas.
+list<item> { item ("," item)* }
+
+// Habilitar la detección automática de delimitadores (por ejemplo, comas en listas).
+@detectDelim
